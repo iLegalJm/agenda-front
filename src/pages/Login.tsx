@@ -2,6 +2,7 @@ import { useTheme } from '../context/ThemeContext'
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { login } from '../api/authApi';
 
 const schema = z.object({
     email: z.string().email('Email inválido'),
@@ -17,24 +18,28 @@ export default function Login() {
         resolver: zodResolver(schema)
     });
 
-    const onSubmit = (data: FormData) => {
-        console.log(data);
-    }
+    const onSubmit = async (data: FormData) => {
+        try {
+            const res = await login(data.email, data.password);
 
-    const fakeLogin = (data: FormData) => {
-        console.log('Intentando login con:', data);
-        // Aquí iría la lógica real de autenticación
+            if (res.data?.token) {
+                // guardar token en localStorage
+                localStorage.setItem('token', res.data.token);
+                // redirigir a dashboard
+                window.location.href = '/';
+            } else {
+                alert('Credenciales inválidas');
+            }
+        } catch (error: unknown) {
+            console.error("Error de login", error);
+            if (typeof error === "object" && error !== null && "response" in error) {
+                // @ts-expect-error: error.response may exist
+                alert("Error en el login: " + (error.response?.data?.message || "Intenta de nuevo"));
+            } else {
+                alert("Error en el login: Intenta de nuevo");
+            }
+        }
     }
-
-    // const onSubmit = async (data: FormData) => {
-    //     try {
-    //         const user = await login(data.email, data.password);
-    //         console.log('Usuario autenticado:', user);
-    //         // guardar token, redirigir, etc.
-    //     } catch (err) {
-    //         console.error('Error de login', err);
-    //     }
-    // };
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
@@ -53,7 +58,7 @@ export default function Login() {
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit(fakeLogin)} className="space-y-4">
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                     {/* Email */}
                     <div>
                         <label className="block mb-1 font-medium text-gray-800 dark:text-gray-200">
