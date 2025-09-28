@@ -19,6 +19,11 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx"   // 👈 IMPORTANTE
+
+    /* 👇 Necesario para que el CLI valide correctamente */
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   }
 }
