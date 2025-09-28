@@ -3,6 +3,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { login } from '../api/authApi';
+import { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 
 const schema = z.object({
     email: z.string().email('Email inválido'),
@@ -12,32 +14,28 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 export default function Login() {
+    const { login } = useAuth();
     const { theme, toggleTheme } = useTheme();
 
     const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
         resolver: zodResolver(schema)
     });
 
-    const onSubmit = async (data: FormData) => {
-        try {
-            const res = await login(data.email, data.password);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
 
-            if (res.data?.token) {
-                // guardar token en localStorage
-                localStorage.setItem('token', res.data.token);
-                // redirigir a dashboard
-                window.location.href = '/';
-            } else {
-                alert('Credenciales inválidas');
-            }
-        } catch (error: unknown) {
-            console.error("Error de login", error);
-            if (typeof error === "object" && error !== null && "response" in error) {
-                // @ts-expect-error: error.response may exist
-                alert("Error en el login: " + (error.response?.data?.message || "Intenta de nuevo"));
-            } else {
-                alert("Error en el login: Intenta de nuevo");
-            }
+    const onSubmit = async (data: FormData) => {
+        setLoading(true);
+        setError("");
+
+        try {
+            await login(data.email, data.password);
+
+            window.location.href = "/dashboard";
+        } catch (err) {
+            setError("Credenciales inválidas");
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -46,7 +44,7 @@ export default function Login() {
             <div className="w-full max-w-sm bg-white dark:bg-gray-800 rounded-lg shadow p-6">
                 {/* Cabecera con botón de tema */}
                 <div className="flex justify-between items-center mb-4">
-                    <h1 className="text-2xl font-bold mb-4 text-center text-gray-900 dark:text-gray-100">
+                    <h1 className="text-2xl font-bold text-center text-gray-900 dark:text-gray-100">
                         Iniciar Sesión
                     </h1>
                     <button
@@ -66,6 +64,7 @@ export default function Login() {
                         </label>
                         <input
                             type="email"
+                            autoFocus
                             {...register('email')}
                             className="w-full border rounded p-2 bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100"
                         />
@@ -89,12 +88,18 @@ export default function Login() {
                         )}
                     </div>
 
+                    {/* Error */}
+                    {error && (
+                        <p className="text-red-500 text-sm text-center">{error}</p>
+                    )}
+
                     {/* Botón */}
                     <button
                         type="submit"
-                        className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded transition-colors"
+                        disabled={loading}
+                        className={`w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded transition-colors ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
                     >
-                        Entrar
+                        {loading ? "Ingresando..." : "Entrar"}
                     </button>
                 </form>
             </div>
