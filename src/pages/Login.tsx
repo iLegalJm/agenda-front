@@ -1,10 +1,29 @@
-import { useTheme } from '../context/ThemeContext'
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+
+import { Mail, Lock, Eye, EyeOff } from "lucide-react";
+
+import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
+
+import {
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from "@/components/ui/form"
 
 const schema = z.object({
     email: z.string().email('Email inválido'),
@@ -17,13 +36,18 @@ export default function Login() {
     const { login } = useAuth();
     const { theme, toggleTheme } = useTheme();
 
-    const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
-        resolver: zodResolver(schema)
-    });
-
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [showPassword, setShowPassword] = useState(false);
+
+    const form = useForm<FormData>({
+        resolver: zodResolver(schema),
+        defaultValues: {
+            email: '',
+            password: '',
+        },
+    });
+
 
     const onSubmit = async (data: FormData) => {
         setLoading(true);
@@ -41,124 +65,138 @@ export default function Login() {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 px-4">
-            <div className="w-full max-w-sm bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+        <div className="min-h-screen flex items-center justify-center 
+    bg-gradient-to-br from-slate-100 to-slate-200 
+    dark:from-slate-900 dark:to-slate-800 px-4">
+            <Card className="w-full max-w-sm shadow-lg 
+      border border-slate-200 dark:border-slate-700 
+      bg-white dark:bg-slate-800">
 
-                {/* Cabecera */}
-                <div className="flex justify-between items-center mb-6">
-                    <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                        Bienvenido de nuevo 👋
-                    </h1>
+                <CardHeader className="flex flex-row justify-between items-center">
+                    <CardTitle className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
+                        Iniciar Sesión
+                    </CardTitle>
                     <button
                         onClick={toggleTheme}
-                        className="ml-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-                        title={`Cambiar a modo ${theme === 'light' ? 'oscuro' : 'claro'}`}
+                        className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+                        title={`Cambiar a modo ${theme === "light" ? "oscuro" : "claro"}`}
                     >
-                        {theme === 'light' ? '🌙' : '☀️'}
+                        {theme === "light" ? "🌙" : "☀️"}
                     </button>
-                </div>
+                </CardHeader>
 
-                {/* Formulario */}
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+                <CardContent>
+                    <Form {...form}>
+                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
 
-                    {/* Email */}
-                    <div>
-                        <label className="block mb-1 font-medium text-gray-800 dark:text-gray-200">
-                            Correo electrónico
-                        </label>
-                        <div className="relative">
-                            <input
-                                type="email"
-                                autoFocus
-                                {...register('email')}
-                                aria-invalid={!!errors.email}
-                                placeholder="correo@ejemplo.com"
-                                className={`w-full pl-10 border rounded-lg p-2 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:outline-none
-                                    ${errors.email ? "border-red-500 focus:ring-red-500" : "border-gray-300 dark:border-gray-600 focus:ring-indigo-500"}`}
-                            />
-                            <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-                        </div>
-                        {errors.email && (
-                            <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
-                        )}
-                    </div>
-
-                    {/* Contraseña */}
-                    <div>
-                        <label className="block mb-1 font-medium text-gray-800 dark:text-gray-200">
-                            Contraseña
-                        </label>
-                        <div className="relative">
-                            <input
-                                type={showPassword ? "text" : "password"}
-                                {...register('password')}
-                                aria-invalid={!!errors.password}
-                                placeholder="********"
-                                className={`w-full pl-10 pr-10 border rounded-lg p-2 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:outline-none
-                                    ${errors.password ? "border-red-500 focus:ring-red-500" : "border-gray-300 dark:border-gray-600 focus:ring-indigo-500"}`}
-                            />
-                            <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-                            <button
-                                type="button"
-                                onClick={() => setShowPassword(!showPassword)}
-                                className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                            >
-                                {showPassword ? (
-                                    <EyeOff className="h-5 w-5" />
-                                ) : (
-                                    <Eye className="h-5 w-5" />
+                            {/* Email */}
+                            <FormField
+                                control={form.control}
+                                name="email"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Correo electrónico</FormLabel>
+                                        <FormControl>
+                                            <div className="relative">
+                                                <Mail className="absolute left-3 top-2.5 h-5 w-5 text-slate-400" />
+                                                <Input
+                                                    placeholder="correo@ejemplo.com"
+                                                    type="email"
+                                                    className="pl-10 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400"
+                                                    {...field}
+                                                />
+                                            </div>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
                                 )}
-                            </button>
-                        </div>
-                        {errors.password && (
-                            <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
-                        )}
-                    </div>
+                            />
 
-                    {/* Error general */}
-                    {error && (
-                        <p className="text-red-500 text-sm text-center">{error}</p>
-                    )}
+                            {/* Contraseña */}
+                            <FormField
+                                control={form.control}
+                                name="password"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Contraseña</FormLabel>
+                                        <FormControl>
+                                            <div className="relative">
+                                                <Lock className="absolute left-3 top-2.5 h-5 w-5 text-slate-400" />
+                                                <Input
+                                                    placeholder="********"
+                                                    type={showPassword ? "text" : "password"}
+                                                    className="pl-10 pr-10 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400"
+                                                    {...field}
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowPassword(!showPassword)}
+                                                    className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                                                >
+                                                    {showPassword ? (
+                                                        <EyeOff className="h-5 w-5" />
+                                                    ) : (
+                                                        <Eye className="h-5 w-5" />
+                                                    )}
+                                                </button>
+                                            </div>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
 
-                    {/* Botón */}
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg transition-colors disabled:opacity-50"
-                    >
-                        {loading && (
-                            <svg
-                                className="animate-spin h-5 w-5 text-white mr-2"
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
+                            {/* Error general */}
+                            {error && (
+                                <p className="text-red-500 text-sm text-center">{error}</p>
+                            )}
+
+                            {/* Botón */}
+                            <Button
+                                type="submit"
+                                disabled={loading}
+                                className="w-full flex items-center justify-center transition-transform hover:scale-[1.01]"
                             >
-                                <circle
-                                    className="opacity-25"
-                                    cx="12"
-                                    cy="12"
-                                    r="10"
-                                    stroke="currentColor"
-                                    strokeWidth="4"
-                                ></circle>
-                                <path
-                                    className="opacity-75"
-                                    fill="currentColor"
-                                    d="M4 12a8 8 0 018-8v8z"
-                                ></path>
-                            </svg>
-                        )}
-                        {loading ? "Ingresando..." : "Entrar"}
-                    </button>
+                                {loading && (
+                                    <svg
+                                        className="animate-spin h-5 w-5 text-white mr-2"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <circle
+                                            className="opacity-25"
+                                            cx="12"
+                                            cy="12"
+                                            r="10"
+                                            stroke="currentColor"
+                                            strokeWidth="4"
+                                        ></circle>
+                                        <path
+                                            className="opacity-75"
+                                            fill="currentColor"
+                                            d="M4 12a8 8 0 018-8v8z"
+                                        ></path>
+                                    </svg>
+                                )}
+                                {loading ? "Ingresando..." : "Entrar"}
+                            </Button>
 
-                    {/* Extra */}
-                    <div className="text-center">
-                        <a href="/forgot-password" className="text-sm text-indigo-600 hover:underline dark:text-indigo-400">
-                            ¿Olvidaste tu contraseña?
-                        </a>
-                    </div>
-                </form>
-            </div>
+                            {/* Extra */}
+                            <div className="text-center">
+                                <a
+                                    href="/forgot-password"
+                                    className="text-sm text-slate-600 hover:text-indigo-600 
+                           dark:text-slate-400 dark:hover:text-indigo-400 transition-colors"
+                                >
+                                    ¿Olvidaste tu contraseña?
+                                </a>
+                            </div>
+                        </form>
+                    </Form>
+                </CardContent>
+            </Card>
         </div>
     )
+
 }
