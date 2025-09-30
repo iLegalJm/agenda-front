@@ -1,24 +1,35 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import Login from '../pages/Login';
+import Login from '@/features/auth/pages/Login';
 import Dashboard from '../pages/Dashboard';
-import Medicos from '../pages/Medicos';
-import Pacientes from '../pages/Pacientes';
-import Citas from '../pages/Citas';
-import PrivateRoute from '../components/PrivateRoute';
+import PrivateRoute from './PrivateRoute';
+import PublicRoute from './PublicRoute';
 
 export default function AppRouter() {
     return (
         <BrowserRouter>
             <Routes>
-                {/* Pública */}
-                <Route path="/login" element={<Login />} />
+                {/* Rutas públicas (redirige al dashboard si ya está logueado) */}
+                <Route
+                    path="/login"
+                    element={
+                        <PublicRoute>
+                            <Login />
+                        </PublicRoute>
+                    }
+                />
 
-                {/* Protegidas */}
-                <Route path="/" element={<Navigate to="/dashboard" replace />} />
-                <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-                <Route path="/medicos" element={<PrivateRoute><Medicos /></PrivateRoute>} />
-                <Route path="/pacientes" element={<PrivateRoute><Pacientes /></PrivateRoute>} />
-                <Route path="/citas" element={<PrivateRoute><Citas /></PrivateRoute>} />
+                {/* Rutas privadas */}
+                <Route
+                    path="/dashboard"
+                    element={
+                        <PrivateRoute>
+                            <Dashboard />
+                        </PrivateRoute>
+                    }
+                />
+
+                {/* Redirección por defecto */}
+                <Route path="*" element={<Navigate to="/login" replace />} />
             </Routes>
         </BrowserRouter>
     );
