@@ -1,45 +1,76 @@
-// src/context/AuthContext.tsx
-import { createContext, useState, useContext } from "react";
-import { loginUser, logoutUser } from "../services/authService";
+import { createContext, useState, useContext, useEffect } from "react";
+import { authService } from "../services/authService";
 
 interface AuthContextType {
-    token: string | null;
+    accessToken: string | null;
+    isAuthenticated: boolean;
     login: (email: string, password: string) => Promise<void>;
     logout: () => void;
+    loading: boolean;
 }
 
 export const AuthContext = createContext<AuthContextType>({
-    token: null,
+    accessToken: null,
+    isAuthenticated: false,
     login: async () => { },
     logout: () => { },
+    loading: true,
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-    const [token, setToken] = useState<string | null>(
-        () => localStorage.getItem("token")
-    );
+    const [accessToken, setAccessToken] = useState<string | null>(() => authService.getAccessToken());
 
     const login = async (email: string, password: string) => {
-        const newToken = await loginUser(email, password);
-        setToken(newToken);
-    };
+        const data = await authService.login(email, password);
+
+        setAccessToken(data.data.accessToken);
+    }
+
+    const [loading, setLoading] = useState(true);
 
     const logout = () => {
-        logoutUser();
-        setToken(null);
+        authService.logout();
+        setAccessToken(null);
     };
 
+    useEffect(() => {
+        const tryRefresh = async () => {
+            if (!authService.getRefreshToken()) {
+                setLoading(false);
+                return;
+            }
+
+            try {
+                const newToken = await authService.refresh();
+                setAccessToken(newToken);
+            } catch {
+                logout();
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        tryRefresh();
+    }, []);
+
     return (
-        <AuthContext.Provider value={{ token, login, logout }}>
+        <AuthContext.Provider
+            value={{
+                accessToken,
+                isAuthenticated: !!accessToken,
+                login,
+                logout,
+                loading,
+            }}
+        >
             {children}
         </AuthContext.Provider>
     );
 }
 
-// 👇 custom hook para consumir el contexto
 export function useAuth() {
     const context = useContext(AuthContext);
-    if (!context) {
+    if (context === undefined) {
         throw new Error("useAuth debe usarse dentro de un AuthProvider");
     }
     return context;

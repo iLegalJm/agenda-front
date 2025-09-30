@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { toast } from 'sonner';
 
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
@@ -55,7 +56,7 @@ export default function Login() {
 
         try {
             await login(data.email, data.password);
-
+            toast.success("Bienvenido de nuevo!");
             window.location.href = "/dashboard";
         } catch (err) {
             setError("Credenciales inválidas");
@@ -65,11 +66,11 @@ export default function Login() {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center 
-    bg-gradient-to-br from-slate-100 to-slate-200 
+        <div className="min-h-screen flex items-center justify-center
+    bg-gradient-to-br from-slate-100 to-slate-200
     dark:from-slate-900 dark:to-slate-800 px-4">
-            <Card className="w-full max-w-sm shadow-lg 
-      border border-slate-200 dark:border-slate-700 
+            <Card className="w-full max-w-sm shadow-lg
+      border border-slate-200 dark:border-slate-700
       bg-white dark:bg-slate-800">
 
                 <CardHeader className="flex flex-row justify-between items-center">
