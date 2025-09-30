@@ -8,12 +8,13 @@ import {
     // Settings,
     LogOut,
     User,
+    Hospital
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import ThemeToggle from "@/components/ThemeToggle"
 import { toast } from "sonner"
-import { useAuth } from "@/context/AuthContext"
+import { useAuth } from "@/features/auth/hooks/useAuth"
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const [sidebarOpen, setSidebarOpen] = useState(true)
@@ -56,7 +57,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
                 <nav className="flex-1 p-4 space-y-2">
                     <NavItem href="/dashboard" icon={<Home />} open={sidebarOpen}>Inicio</NavItem>
-                    {/* <NavItem href="/dashboard/stats" icon={<LayoutDashboard />} open={sidebarOpen}>Estadísticas</NavItem> */}
+                    <NavItem href="/dashboard/medicos" icon={<Hospital />} open={sidebarOpen}>Médicos</NavItem>
                     {/* <NavItem href="/dashboard/settings" icon={<Settings />} open={sidebarOpen}>Configuración</NavItem> */}
                 </nav>
             </aside>
