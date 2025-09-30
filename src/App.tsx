@@ -1,6 +1,6 @@
-import AppRouter from './router/AppRouter'
-import { AuthProvider } from './context/AuthContext'
+import { AuthProvider } from './features/auth/context/AuthContext'
 import { Toaster } from 'sonner'
+import AppRouter from './router/AppRouter'
 
 function App() {
   return (

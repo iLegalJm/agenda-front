@@ -1,57 +1,84 @@
+import { authService } from "@/features/auth/services/authService";
 import axios from "axios";
 
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080/api',
+    baseURL: import.meta.env.VITE_API_URL || "http://localhost:8080/api",
     headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
     },
 });
 
-api.interceptors.request.use((config) => {
-    const token = localStorage.getItem('accessToken');
+// Variables para evitar múltiples refreshes simultáneos
+let isRefreshing = false;
+let failedQueue: any[] = [];
 
+const processQueue = (error: any, token: string | null = null) => {
+    failedQueue.forEach(prom => {
+        if (error) {
+            prom.reject(error);
+        } else {
+            prom.resolve(token);
+        }
+    });
+    failedQueue = [];
+};
+
+// Interceptor de request
+api.interceptors.request.use((config) => {
+    const token = authService.getAccessToken();
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
     }
-
+    console.log("➡️ Request:", config.method?.toUpperCase(), config.url);
     return config;
 });
 
-api.interceptors.response.use((response) => response, async (error) => {
-    const originalRequest = error.config;
+// Interceptor de response
+api.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+        const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
-        originalRequest._retry = true;
-        try {
-            const refreshToken = localStorage.getItem('refreshToken');
-
-            if (!refreshToken) {
-                throw new Error('No refresh token, cerrar sesión');
+        if (error.response?.status === 401 && !originalRequest._retry) {
+            if (isRefreshing) {
+                return new Promise((resolve, reject) => {
+                    failedQueue.push({ resolve, reject });
+                }).then(token => {
+                    originalRequest.headers.Authorization = `Bearer ${token}`;
+                    return api(originalRequest);
+                }).catch(err => Promise.reject(err));
             }
 
-            // Pedir un nuevo token
-            const { data } = await api.post(
-                `${import.meta.env.VITE_API_URL || 'http://localhost:8080/api'}/auth/refresh`,
-                { refreshToken },
-                { headers: { 'Content-Type': 'application/json' } }
-            );
+            originalRequest._retry = true;
+            isRefreshing = true;
 
-            // Guardar nuevos tokens
-            localStorage.setItem('accessToken', data.data.accessToken);
-            localStorage.setItem('refreshToken', data.data.refreshToken);
+            try {
+                console.log("🔄 Interceptor: Haciendo refresh...");
 
-            // Reintentar la solicitud original con el nuevo token
-            originalRequest.headers.Authorization = `Bearer ${data.data.accessToken}`;
-            return api(originalRequest);
+                // 👉 USA authService que hace el refresh con axios directo
+                const { accessToken } = await authService.refresh();
 
-        } catch (err) {
-            // Si el refresh falla, cerrar sesión
-            localStorage.removeItem('accessToken');
-            localStorage.removeItem('refreshToken');
-            window.location.href = '/login'; // Redirigir a login
+                console.log("✅ Interceptor: Refresh exitoso");
+
+                originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+                processQueue(null, accessToken);
+                isRefreshing = false;
+
+                return api(originalRequest);
+            } catch (err) {
+                console.error("❌ Interceptor: Refresh falló");
+                processQueue(err, null);
+                isRefreshing = false;
+
+                authService.clearTokens();
+                window.location.href = "/login";
+
+                return Promise.reject(err);
+            }
         }
+
+        return Promise.reject(error);
     }
-    return Promise.reject(error);
-});
+);
 
 export default api;
