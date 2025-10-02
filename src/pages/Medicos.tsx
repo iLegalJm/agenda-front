@@ -1,7 +1,10 @@
-import { useQuery } from '@tanstack/react-query';
+import DashboardLayout from '@/layouts/DashboardLayout';
 
 export default function Medicos() {
 
-    return (<div>Medicos</div>
+    return (
+        <DashboardLayout>
+            <div>Medicos</div>
+        </DashboardLayout>
     )
 }

@@ -55,7 +55,6 @@ api.interceptors.response.use(
             try {
                 console.log("🔄 Interceptor: Haciendo refresh...");
 
-                // 👉 USA authService que hace el refresh con axios directo
                 const { accessToken } = await authService.refresh();
 
                 console.log("✅ Interceptor: Refresh exitoso");

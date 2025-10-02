@@ -14,7 +14,7 @@ export const authService = {
         return { accessToken, refreshToken };
     },
 
-    // 👉 Usa axios DIRECTO para evitar los interceptores
+    // axios DIRECTO para evitar los interceptores
     refresh: async () => {
         const refreshToken = localStorage.getItem("refreshToken");
         if (!refreshToken) throw new Error("No refresh token");
