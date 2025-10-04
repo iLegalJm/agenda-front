@@ -5,7 +5,7 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
 
 export const authService = {
     login: async (email: string, password: string) => {
-        const { data } = await api.post("/auth/login", { email, password });
+        const { data } = await api.post("/api/auth/login", { email, password });
         const { accessToken, refreshToken } = data.data;
 
         localStorage.setItem("accessToken", accessToken);
@@ -23,7 +23,7 @@ export const authService = {
 
         // ⚠️ AXIOS DIRECTO, no 'api'
         const { data } = await axios.post(
-            `${API_URL}/auth/refresh`,
+            `${API_URL}/api/auth/refresh`,
             { refreshToken },
             { headers: { "Content-Type": "application/json" } }
         );
@@ -42,7 +42,7 @@ export const authService = {
         const refreshToken = localStorage.getItem("refreshToken");
         if (refreshToken) {
             try {
-                await api.post("/auth/logout", { refreshToken });
+                await api.post("/api/auth/logout", { refreshToken });
             } catch (error) {
                 console.error("Error en logout:", error);
             }

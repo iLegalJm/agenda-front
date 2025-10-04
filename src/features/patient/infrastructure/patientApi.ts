@@ -5,13 +5,13 @@ import type { PatientInput } from "../domain/patient.schema";
 
 export const patientApi = {
     async getAll(): Promise<Patient[]> {
-        const { data } = await api.get("/patients");
+        const { data } = await api.get("/patient/v1/api");
         return data.map(mapPatientFromApi);
     },
 
     async create(patient: PatientInput): Promise<Patient> {
         const payload = mapPatientToApi(patient);
-        const { data } = await api.post("/patients", payload);
+        const { data } = await api.post("/patient/v1/api", payload);
         return mapPatientFromApi(data);
     },
 
@@ -21,11 +21,11 @@ export const patientApi = {
         }
 
         const payload = mapPatientToApi(patient);
-        const { data } = await api.put(`/patients/${id}`, payload);
+        const { data } = await api.put(`/patient/v1/api/${id}`, payload);
         return mapPatientFromApi(data);
     },
 
     async remove(id: number): Promise<void> {
-        await api.delete(`/patients/${id}`);
+        await api.delete(`/patient/v1/api/${id}`);
     }
 }
