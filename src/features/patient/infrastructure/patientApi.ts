@@ -5,14 +5,14 @@ import type { PatientInput } from "../domain/patient.schema";
 
 export const patientApi = {
     async getAll(): Promise<Patient[]> {
-        const { data } = await api.get("/patient/v1/api");
-        return data.map(mapPatientFromApi);
+        const response = await api.get("/patient/v1/api");
+        return response.data.data.map(mapPatientFromApi);
     },
 
     async create(patient: PatientInput): Promise<Patient> {
         const payload = mapPatientToApi(patient);
-        const { data } = await api.post("/patient/v1/api", payload);
-        return mapPatientFromApi(data);
+        const response = await api.post("/patient/v1/api", payload);
+        return mapPatientFromApi(response.data.data);
     },
 
     async update(id: number, patient: PatientInput): Promise<Patient> {
@@ -21,8 +21,8 @@ export const patientApi = {
         }
 
         const payload = mapPatientToApi(patient);
-        const { data } = await api.put(`/patient/v1/api/${id}`, payload);
-        return mapPatientFromApi(data);
+        const response = await api.put(`/patient/v1/api/${id}`, payload);
+        return mapPatientFromApi(response.data.data);
     },
 
     async remove(id: number): Promise<void> {
