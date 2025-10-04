@@ -1,4 +1,4 @@
-import api from "@/api/api";
+import api from "@/features/infraestructure/api";
 
 export const authApi = {
     login: (email: string, password: string) =>
