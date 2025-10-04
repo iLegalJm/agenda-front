@@ -1,4 +1,4 @@
-import api from "@/api/api";
+import api from "@/features/infraestructure/api";
 import axios from "axios";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
