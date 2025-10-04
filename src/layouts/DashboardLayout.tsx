@@ -117,13 +117,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         Inicio
                     </NavItem>
                     <NavItem
-                        href="/dashboard/medicos"
-                        icon={<Hospital />}
+                        href="/dashboard/patients"
+                        icon={<User />}
                         open={sidebarOpen}
-                        active={location.pathname.startsWith("/dashboard/medicos")}
+                        active={location.pathname.startsWith("/dashboard/patients")}
                         onClick={() => setMobileMenuOpen(false)}
                     >
-                        Médicos
+                        Pacientes
                     </NavItem>
                 </nav>
 
