@@ -17,11 +17,10 @@ interface PatientTableProps {
 
 export function PatientTable({ patients, onDelete, onEdit }: PatientTableProps) {
     return (
-        <div className="border rounded-2xl shadow-sm bg-white overflow-x-auto">
+        <div className="border rounded-2xl shadow-sm bg-card overflow-x-auto">
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead>ID</TableHead>
                         <TableHead>Nombre</TableHead>
                         <TableHead>DNI</TableHead>
                         <TableHead>Fecha nacimiento</TableHead>
@@ -32,7 +31,6 @@ export function PatientTable({ patients, onDelete, onEdit }: PatientTableProps) 
                 <TableBody>
                     {patients.map((p) => (
                         <TableRow key={p.id}>
-                            <TableCell>{p.id}</TableCell>
                             <TableCell>
                                 {p.primerNombre} {p.segundoNombre ?? ""} {p.apellidoPaterno}{" "}
                                 {p.apellidoMaterno}
@@ -47,7 +45,7 @@ export function PatientTable({ patients, onDelete, onEdit }: PatientTableProps) 
                                     <Button
                                         variant="outline"
                                         size="sm"
-                                        onClick={() => onEdit?.(p)} // Llama a setEditingPatient(p) en la Page
+                                        onClick={() => onEdit?.(p)}
                                     >
                                         ✏️ Editar
                                     </Button>

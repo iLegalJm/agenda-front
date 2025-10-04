@@ -12,15 +12,12 @@ import { type Patient } from "../../domain/patient"
 import DashboardLayout from "@/layouts/DashboardLayout"
 
 export function PatientListPage() {
-    // 🔹 React Query hooks
     const { data: patients, isLoading } = useFetchPatients()
     const deletePatient = useDeletePatient()
 
-    // 🔹 Estado local
     const [search, setSearch] = useState("")
     const [editingPatient, setEditingPatient] = useState<Patient | null>(null)
 
-    // 🔹 Handlers
     const handleDelete = (id: number) => {
         if (confirm("¿Seguro que deseas eliminar este paciente?")) {
             deletePatient.mutate(id, {
@@ -34,7 +31,7 @@ export function PatientListPage() {
         setEditingPatient(patient)
     }
 
-    // 🔹 Filtro por nombre o DNI
+    //  Filtro por nombre o DNI
     const filteredPatients =
         patients?.filter((p) =>
             `${p.primerNombre} ${p.apellidoPaterno} ${p.dni}`
@@ -47,7 +44,7 @@ export function PatientListPage() {
             <div className="p-6 space-y-8">
                 {/* 🧱 Header */}
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                    <h1 className="text-3xl font-bold text-gray-800">Pacientes</h1>
+                    <h1 className="text-3xl font-bold text-foreground">Pacientes</h1>
 
                     <div className="flex gap-3 items-center">
                         <Input
@@ -64,7 +61,7 @@ export function PatientListPage() {
 
                 {/* 📋 Tabla de pacientes */}
                 {isLoading ? (
-                    <div className="text-gray-500 italic">Cargando pacientes...</div>
+                    <div className="text-muted-foreground italic">Cargando pacientes...</div>
                 ) : (
                     <PatientTable
                         patients={filteredPatients}
