@@ -1,9 +1,9 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from '@/features/auth/pages/Login';
-import Dashboard from '../pages/Dashboard';
+import Dashboard from '../features/dashboard/pages/Dashboard';
 import PrivateRoute from './PrivateRoute';
 import PublicRoute from './PublicRoute';
-import Medicos from '@/pages/Medicos';
+import { PatientListPage } from '@/features/patient/ui/pages/PatientListPage';
 
 export default function AppRouter() {
     return (
@@ -28,13 +28,12 @@ export default function AppRouter() {
                         </PrivateRoute>
                     }
                 />
-                {/* rutas de medicos */}
-                <Route path="/dashboard/medicos" element={
+                {/* rutas de doctores */}
+                <Route path="/dashboard/patients" element={
                     <PrivateRoute>
-                        <Medicos />
+                        <PatientListPage />
                     </PrivateRoute>
                 } />
-
 
                 {/* Redirección por defecto */}
                 <Route path="*" element={<Navigate to="/login" replace />} />
